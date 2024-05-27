@@ -60,25 +60,6 @@ namespace ASTBuilder
 
         }
 
-
-        // Use the PrintVisitor to print out an abstract syntax tree
-        static void PrintTree(AbstractNode root)
-        {
-            PrintVisitor visitor = new PrintVisitor();
-            Console.WriteLine("Starting to print AST ");
-            visitor.PrintTree(root);
-            Console.WriteLine("AST complete");
-
-        }
-
-        static void DoSemantics(AbstractNode root)
-        {
-            SemanticsVisitor visitor = new SemanticsVisitor("");
-            Console.WriteLine("Starting semantic checking");
-            visitor.CheckSemantics(root);
-            Console.WriteLine("Semantic checking complete");
-        }
-
         static void GenerateIL(AbstractNode root, string filename)
         {
             CodeGenVisitor visitor = new CodeGenVisitor();
@@ -89,6 +70,7 @@ namespace ASTBuilder
         static void Main(string[] args)
         {
             var parser = new TCCLParser();
+            PrintVisitor visitor = new PrintVisitor();
             string name;
             AbstractNode ast;
             while (true)
@@ -97,9 +79,9 @@ namespace ASTBuilder
                 name = Console.ReadLine();
                 Console.WriteLine("Compiling file " + name);
                 ast = parser.Parse(name + ".txt");
-                // Do semantc checking before printing the AST
-                DoSemantics(ast);
-                PrintTree(ast);
+                // Do semantic checking before printing the AST
+                visitor.DoSemantics(ast);
+                visitor.PrintTree(ast);
                 // Generate IL and then call assembler
                 GenerateIL(ast, name);
                 ILasm(name);
