@@ -18,6 +18,7 @@ namespace ASTBuilder
         public TypeDescriptor TypeDescriptors { get; set; }
         public TypeDescriptor Type { get; set; }
         public int Scope { get; set; }
+        public string Name2 { get; set; }
         
         public Attributes() 
         {
@@ -55,12 +56,14 @@ namespace ASTBuilder
     
     public class MethodAttributes : Attributes
     {
-        public MethodAttributes(string name, List<string> modifiers, TypeDescriptor type, Dictionary<string, TypeDescriptor> parameterList, int scope) 
+        public MethodAttributes(string name, List<string> modifiers, TypeDescriptor type, Dictionary<string, TypeDescriptor> parameterList, string className, 
+            int scope) 
         {
             Name = name;
             Value1 = modifiers;
             Type = type;
             Value2 = parameterList;
+            Name2 = className;
             Scope = scope;
         }
     }
@@ -92,4 +95,24 @@ namespace ASTBuilder
             Type = type;
         }
     }
+
+    public class AssignmentAttributes : Attributes
+    {
+        public AssignmentAttributes(string name, TypeDescriptor type, object value)
+        {
+            Name = name;
+            Type = type;
+            Value1 = value;
+        }
+    }
+
+    public class ParameterAttributes : Attributes
+    {
+        public ParameterAttributes(string name, TypeDescriptor type)
+        {
+            Name = name;
+            Type = type;
+        }
+    }
+
 }

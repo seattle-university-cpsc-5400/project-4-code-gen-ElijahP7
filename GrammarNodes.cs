@@ -214,11 +214,18 @@ namespace ASTBuilder
     {
         public SelectionType selectionType { get; set; }
 
-        public SelectionStatement(AbstractNode expression, AbstractNode statement, SelectionType type, AbstractNode elseBlock = null)
+        public SelectionStatement(AbstractNode expression, AbstractNode statement, AbstractNode elseBlock, SelectionType type)
         {
             adoptChildren(expression);
             adoptChildren(statement);
             makeSibling(elseBlock);
+            selectionType = type;
+        }
+
+        public SelectionStatement(AbstractNode expression, AbstractNode statement, SelectionType type) 
+        {
+            adoptChildren(expression);
+            adoptChildren(statement);
             selectionType = type;
         }
     }
@@ -242,6 +249,24 @@ namespace ASTBuilder
         public ReturnStatement(AbstractNode expression = null)
         {
             adoptChildren(expression);
+        }
+    }
+
+    public class Block : AbstractNode
+    {
+        public Block(AbstractNode node)
+        {
+            adoptChildren(node);
+        }
+    }
+
+    public class Struct : AbstractNode
+    {
+        public Struct(AbstractNode modifiers, AbstractNode identifier, AbstractNode classBody)
+        {
+            adoptChildren(modifiers);
+            adoptChildren(identifier);
+            adoptChildren(classBody);
         }
     }
 }

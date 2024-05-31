@@ -60,13 +60,6 @@ namespace ASTBuilder
 
         }
 
-        static void GenerateIL(AbstractNode root, string filename)
-        {
-            CodeGenVisitor visitor = new CodeGenVisitor();
-            Console.WriteLine("Starting code generation");
-            visitor.GenerateCode(root, filename);
-        }
-
         static void Main(string[] args)
         {
             var parser = new TCCLParser();
@@ -83,7 +76,7 @@ namespace ASTBuilder
                 visitor.DoSemantics(ast);
                 visitor.PrintTree(ast);
                 // Generate IL and then call assembler
-                GenerateIL(ast, name);
+                visitor.GenerateIL(ast, name);
                 ILasm(name);
             }
 

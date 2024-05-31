@@ -10,12 +10,7 @@ public class iftest {
         if ( i < 10 ) 
             WriteLine("In then part");
         else  i = j; 
-        if ( i == 10 ) 
-	{ 
-	   j = i;
-	   WriteLine("This statement is in then part and should not be executed");
-	}
+        if ( i == 10 ) j = i;
         else  WriteLine("In else part"); 
     }
 }
-

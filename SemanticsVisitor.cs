@@ -268,22 +268,12 @@ namespace ASTBuilder
                                 if (lhsType.ToString() != rhsType.ToString())
                                 {
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine(this.prefix + ">> ERROR: Can't Apply Operator to " + 
+                                    Console.WriteLine(this.prefix + ">> ERROR: Can't Apply Operator to " +
                                         lhsType.ToString() + " and " + rhsType.ToString());
                                     Console.ResetColor();
                                     ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
-                                    ErrorAttributes errorAttr = new ErrorAttributes("Can't Apply Operator to " + 
+                                    ErrorAttributes errorAttr = new ErrorAttributes("Can't Apply Operator to " +
                                         lhsType.ToString() + " and " + rhsType.ToString(), errorType);
-                                    table.Enter(node.exprKind.ToString(), errorAttr);
-                                    return false;
-                                }
-                                else
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine(this.prefix + ">> ERROR: Can't Apply Operator To Arithmatic Expression");
-                                    Console.ResetColor();
-                                    ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
-                                    ErrorAttributes errorAttr = new ErrorAttributes("Can't Apply Operator To Arithmatic Expression", errorType);
                                     table.Enter(node.exprKind.ToString(), errorAttr);
                                     return false;
                                 }
@@ -313,7 +303,7 @@ namespace ASTBuilder
             else if (node.whatAmI() == "ASTBuilder.Expression")
             {
                 VisitNode(node);
-                nodeType = table.Lookup(node.Child.Name);
+                nodeType = GetExpressionType(node.Child);
             }
             else
                 nodeType = table.Lookup(node.Name);
@@ -322,9 +312,20 @@ namespace ASTBuilder
 
         private bool IsDeclared(dynamic node)
         {
-            if (node.whatAmI() == "ASTBuilder.Identifier")
-                return table.Declared(node.Name);
-            return true;
+            if (node.whatAmI() == "ASTBuilder.INT_CONST")
+                return true;
+            else if (node.whatAmI() == "ASTBuilder.STR_CONST")
+                return true;
+            else if (node.whatAmI() == "ASTBuilder.Expression")
+                return true;
+            else if (node.whatAmI() == "ASTBuilder.Identifier")
+            {
+                if (node.Name == "write" || node.Name == "writeline")
+                    return true;
+                else
+                    return table.Declared(node.Name);
+            }
+            return false;
         }
         
         // Node for Tokens have no children and include additional information that is useful in the trace
@@ -343,7 +344,7 @@ namespace ASTBuilder
         public virtual void VisitParameterNodes(PrimitiveType node1, Identifier node2)
         {
             TypeAttributes type = (TypeAttributes)VisitType(node1.Type.ToString());
-            VariableAttributes parameterAttr = new VariableAttributes(node2.Name, type.Type);
+            ParameterAttributes parameterAttr = new ParameterAttributes(node2.Name, type.Type);
             table.Enter(node2.Name, parameterAttr);
             parameters.Add(node2.Name, type.Type);
         }
@@ -378,6 +379,7 @@ namespace ASTBuilder
             Trace(node);
             // Increase indent for trace before visiting children
             String oldPrefix = this.prefix;
+            dynamic className;
             this.prefix += "   ";
 
             dynamic modifiers = node.Child;
@@ -397,7 +399,10 @@ namespace ASTBuilder
             
             Attributes typeDescriptor = VisitType(typeSpec.Type.ToString());
 
-            MethodAttributes attr = new MethodAttributes(name, mods, typeDescriptor.Type, parameters, table.CurrentNestLevel);
+            className = node.Parent.FirstSib.Sib;
+
+            MethodAttributes attr = new MethodAttributes(name, mods, typeDescriptor.Type, parameters, className.Name.ToString(), table.CurrentNestLevel);
+            parameters = new Dictionary<string, TypeDescriptor>();
             table.Enter(name, attr);
 
 
@@ -430,7 +435,7 @@ namespace ASTBuilder
             // Declare the names on the NameList (node.Child.Sib) using type from first child (node.Child.type)
         }
 
-        public void VisitNode(MethodCall node)
+        public bool VisitNode(MethodCall node)
         {
             Trace(node);
             Identifier id = (Identifier)node.Child;
@@ -439,68 +444,64 @@ namespace ASTBuilder
             List<TypeDescriptor> methodArgsAttributes = new List<TypeDescriptor>();
             dynamic exprArg;
 
-            dynamic methodCall = table.Lookup(id.Name);
-            if (methodCall != null && methodCall.Type.ToString() == "ASTBuilder.ClassTypeDescriptor")
+            if (!IsDeclared(id))
             {
-                dynamic methodId = id.Child;
-                string methodName = methodId.Name.ToString();
-                methodCall = table.Lookup(methodName);
-            }
-            foreach (dynamic arg in args)
-            {
-                if (arg.ToString() == "ASTBuilder.Identifier")
+                dynamic methodCall = table.Lookup(id.Name);
+                if (methodCall != null && methodCall.Type.ToString() == "ASTBuilder.ClassTypeDescriptor")
                 {
-                    argType = table.Lookup(arg.Name).Type;
-                    methodArgsAttributes.Add(argType);
+                    dynamic methodId = id.Child;
+                    string methodName = methodId.Name.ToString();
+                    methodCall = table.Lookup(methodName);
                 }
-                else if (arg.ToString() == "ASTBuilder.Expression")
+                foreach (dynamic arg in args)
                 {
-                    exprArg = arg;
-                    if (VisitNode(arg))
+                    if (arg.ToString() == "ASTBuilder.Identifier")
                     {
-                        while (exprArg.ToString() == "ASTBuilder.Expression")
-                            exprArg = exprArg.Child;
-
-                        argType = GetExpressionType(exprArg).Type;
+                        argType = table.Lookup(arg.Name).Type;
                         methodArgsAttributes.Add(argType);
+                    }
+                    else if (arg.ToString() == "ASTBuilder.Expression")
+                    {
+                        exprArg = arg;
+                        if (VisitNode(arg))
+                        {
+                            while (exprArg.ToString() == "ASTBuilder.Expression")
+                                exprArg = exprArg.Child;
+
+                            argType = GetExpressionType(exprArg).Type;
+                            methodArgsAttributes.Add(argType);
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine(this.prefix + ">> ERROR: Invalid Argument for " + methodCall.ToString());
+                            Console.ResetColor();
+                            ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
+                            ErrorAttributes errorAttr = new ErrorAttributes("Invalid Argument", errorType);
+                            table.Enter("Invalid MethodCall", errorAttr);
+                            return false;
+                        }
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine(this.prefix + ">> ERROR: Invalid Argument for " + methodCall.ToString());
-                        Console.ResetColor();
-                        ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
-                        ErrorAttributes errorAttr = new ErrorAttributes("Invalid Argument", errorType);
-                        table.Enter("Invalid Argument", errorAttr);
+                        argType = ConstToAttribute(arg.ToString()).Type;
+                        methodArgsAttributes.Add(argType);
                     }
                 }
+                if (CompareParametersToArgs(methodCall, methodArgsAttributes))
+                    return true;
                 else
                 {
-                    argType = ConstToAttribute(arg.ToString()).Type;
-                    methodArgsAttributes.Add(argType);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(this.prefix + ">> ERROR: Invalid MethodCall");
+                    Console.ResetColor();
+                    ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
+                    ErrorAttributes errorAttr = new ErrorAttributes("Invalid MethodCall", errorType);
+                    table.Enter("Invalid MethodCall", errorAttr);
+                    return false;
                 }
             }
-            if (CompareParametersToArgs(methodCall, methodArgsAttributes))
-            {
-                string name = methodCall.Name + "MethodCall";
-                if (!table.Declared(name))
-                {
-                    ArgumentAttributes argumentAttributes = new ArgumentAttributes(methodArgsAttributes);
-                    MethodCallAttributes methodCallAttributes = new MethodCallAttributes(methodCall.Name,
-                        argumentAttributes, methodCall.Type, table.CurrentNestLevel);
-                    table.Enter(name, methodCallAttributes);
-                }
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(this.prefix + ">> ERROR: Invalid MethodCall");
-                Console.ResetColor();
-                ErrorTypeDescriptor errorType = new ErrorTypeDescriptor();
-                ErrorAttributes errorAttr = new ErrorAttributes("Invalid MethodCall", errorType);
-                table.Enter("Invalid MethodCall", errorAttr);
-            }
-            
+            return false;
         }
 
         private TypeAttributes ConstToAttribute(string s)

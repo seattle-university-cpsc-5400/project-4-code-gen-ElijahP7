@@ -77,11 +77,11 @@ ParameterList       :   Parameter                                               
 Parameter           :   TypeSpecifier IDENTIFIER                                    { $$ = new Parameter($1, $2); }
                     ;
 
-MethodBody          :   Block                                   { $$ = new MethodBody($1); }
+MethodBody          :   Block                                   { $$ = new Block($1); }
                     ;
 
 
-StructDeclaration   :   Modifiers STRUCT IDENTIFIER ClassBody   { $$ = new Identifier("Not Implemented: StructDeclaration");}
+StructDeclaration   :   Modifiers STRUCT IDENTIFIER ClassBody   { $$ = new Struct($1, $3, $4);}
                     ;
 
 FieldDeclaration    :   Modifiers TypeSpecifier FieldNames      { }
@@ -138,12 +138,12 @@ LocalVariableNames          :   NameList
                             ;
 
                             
-Statement                   :   EmptyStatement                      { $$ = new Statement($1); }	                        
-                            |   ExpressionStatement                 { $$ = new Statement($1); }	                 
-                            |   SelectionStatement                	{ $$ = new Statement($1); }                          
-                            |   IterationStatement                  { $$ = new Statement($1); }	                            
-                            |   ReturnStatement                     { $$ = new Statement($1); }                      
-                            |   Block                               { $$ = new Statement($1); }               
+Statement                   :   EmptyStatement                      	                        
+                            |   ExpressionStatement                 	                 
+                            |   SelectionStatement                	                      
+                            |   IterationStatement                                              
+                            |   ReturnStatement                                          
+                            |   Block                               { $$ = new Block($1); }               
                             ;
 
 EmptyStatement              :   SEMICOLON                                                   
@@ -152,7 +152,7 @@ EmptyStatement              :   SEMICOLON
 ExpressionStatement         :   Expression  SEMICOLON               { $$ = $1;}                                                       
                             ;
 
-SelectionStatement          :   IF LPAREN Expression RPAREN Statement ELSE Statement    { $$ = new SelectionStatement($3, $5, SelectionType.IF_ELSE, $7); }
+SelectionStatement          :   IF LPAREN Expression RPAREN Statement ELSE Statement    { $$ = new SelectionStatement($3, $5, $7, SelectionType.IF_ELSE); }
                             |   IF LPAREN Expression RPAREN Statement                   { $$ = new SelectionStatement($3, $5, SelectionType.IF); }
                             ;
 

@@ -124,6 +124,18 @@ namespace ASTBuilder
 			}
 		}
 
+		public virtual AbstractNode FirstSib
+		{
+			get
+			{
+				return this.firstSib;
+			}
+			protected set
+			{
+				this.firstSib = value; 
+			}
+		}
+
 		public IEnumerable Children()
 		{
 			AbstractNode child = this.Child;

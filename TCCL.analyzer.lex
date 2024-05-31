@@ -31,6 +31,7 @@ DecIntegerLiteral (0|[1-9][0-9]*)
 
 /* keywords and special characters */
 <INITIAL> {
+"String"		{ return (int)Token.STRING; }
 "static"		{ return (int)Token.STATIC; }
 "struct"		{ return (int)Token.STRUCT; }
 "?" 			{ return (int)Token.QUESTION; }

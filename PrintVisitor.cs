@@ -18,6 +18,7 @@ namespace ASTBuilder
 
         private Symtab table;
         private SemanticsVisitor visitor;
+        private CodeGenVisitor codeGenVisitor;
 
         public PrintVisitor() 
         {
@@ -30,6 +31,13 @@ namespace ASTBuilder
             Console.WriteLine("Starting semantic checking");
             visitor.CheckSemantics(root);
             Console.WriteLine("Semantic checking complete");
+        }
+
+        public void GenerateIL(AbstractNode root, string filename)
+        {
+            codeGenVisitor = new CodeGenVisitor(table);
+            Console.WriteLine("Starting code generation");
+            codeGenVisitor.GenerateCode(root, filename);
         }
 
         public void PrintTree(dynamic node, string prefix = "")

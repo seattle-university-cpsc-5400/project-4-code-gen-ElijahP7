@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  DESKTOP-62TPEV2
-// DateTime: 5/27/2024 10:10:32 AM
+// DateTime: 5/31/2024 4:29:31 PM
 // UserName: Elijah
-// Input file <TCCL.grammar.y - 5/25/2024 2:33:20 PM>
+// Input file <TCCL.grammar.y - 5/31/2024 2:13:35 PM>
 
 // options: no-lines diagnose & report gplex
 
@@ -427,10 +427,10 @@ internal partial class TCCLParser: ShiftReduceParser<AbstractNode, LexLocation>
 { CurrentSemanticValue = new Parameter(ValueStack[ValueStack.Depth-2], ValueStack[ValueStack.Depth-1]); }
         break;
       case 25: // MethodBody -> Block
-{ CurrentSemanticValue = new MethodBody(ValueStack[ValueStack.Depth-1]); }
+{ CurrentSemanticValue = new Block(ValueStack[ValueStack.Depth-1]); }
         break;
       case 26: // StructDeclaration -> Modifiers, STRUCT, IDENTIFIER, ClassBody
-{ CurrentSemanticValue = new Identifier("Not Implemented: StructDeclaration");}
+{ CurrentSemanticValue = new Struct(ValueStack[ValueStack.Depth-4], ValueStack[ValueStack.Depth-2], ValueStack[ValueStack.Depth-1]);}
         break;
       case 27: // FieldDeclaration -> Modifiers, TypeSpecifier, FieldNames
 { }
@@ -474,30 +474,15 @@ internal partial class TCCLParser: ShiftReduceParser<AbstractNode, LexLocation>
       case 48: // LocalVariableDeclaration -> TypeSpecifier, LocalVariableNames, SEMICOLON
 { CurrentSemanticValue = new LocalDecl(ValueStack[ValueStack.Depth-3], ValueStack[ValueStack.Depth-2]); }
         break;
-      case 51: // Statement -> EmptyStatement
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
-        break;
-      case 52: // Statement -> ExpressionStatement
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
-        break;
-      case 53: // Statement -> SelectionStatement
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
-        break;
-      case 54: // Statement -> IterationStatement
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
-        break;
-      case 55: // Statement -> ReturnStatement
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
-        break;
       case 56: // Statement -> Block
-{ CurrentSemanticValue = new Statement(ValueStack[ValueStack.Depth-1]); }
+{ CurrentSemanticValue = new Block(ValueStack[ValueStack.Depth-1]); }
         break;
       case 58: // ExpressionStatement -> Expression, SEMICOLON
 { CurrentSemanticValue = ValueStack[ValueStack.Depth-2];}
         break;
       case 59: // SelectionStatement -> IF, LPAREN, Expression, RPAREN, Statement, ELSE, 
                //                       Statement
-{ CurrentSemanticValue = new SelectionStatement(ValueStack[ValueStack.Depth-5], ValueStack[ValueStack.Depth-3], SelectionType.IF_ELSE, ValueStack[ValueStack.Depth-1]); }
+{ CurrentSemanticValue = new SelectionStatement(ValueStack[ValueStack.Depth-5], ValueStack[ValueStack.Depth-3], ValueStack[ValueStack.Depth-1], SelectionType.IF_ELSE); }
         break;
       case 60: // SelectionStatement -> IF, LPAREN, Expression, RPAREN, Statement
 { CurrentSemanticValue = new SelectionStatement(ValueStack[ValueStack.Depth-3], ValueStack[ValueStack.Depth-1], SelectionType.IF); }

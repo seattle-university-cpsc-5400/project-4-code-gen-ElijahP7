@@ -33,10 +33,10 @@ C:\Users\leblanc\Documents\GitHub\Project-4-student-initial\obj\Debug\Project4.c
 C:\Users\leblanc\Documents\GitHub\Project-4-student-initial\obj\Debug\Project4.csproj.CoreCompileInputs.cache
 C:\Users\leblanc\Documents\GitHub\Project-4-student-initial\obj\Debug\TCCL-CodeGen.exe
 C:\Users\leblanc\Documents\GitHub\Project-4-student-initial\obj\Debug\TCCL-CodeGen.pdb
+C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.exe.config
+C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.exe
+C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.pdb
 C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\obj\Debug\Project4.csproj.AssemblyReference.cache
 C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\obj\Debug\Project4.csproj.CoreCompileInputs.cache
 C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\obj\Debug\TCCL-CodeGen.exe
 C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\obj\Debug\TCCL-CodeGen.pdb
-C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.exe.config
-C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.exe
-C:\Users\Elija\source\repos\project-4-code-gen-ElijahP7\bin\Debug\TCCL-CodeGen.pdb
