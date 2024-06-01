@@ -146,7 +146,6 @@ namespace ASTBuilder
             file.WriteLine("}");
         }
 
-
         public virtual void VisitNode(MethodDeclaration node)
         {
             string name = "";
@@ -618,11 +617,6 @@ namespace ASTBuilder
                 ReturnStatement returnStatement = (ReturnStatement)node;
                 VisitNode(returnStatement);
             }
-        }
-
-        private bool IsLastNode(dynamic node)
-        {
-            return node.Child == null || node.Sib == null;
         }
     }
 }
