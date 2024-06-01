@@ -1,5 +1,6 @@
 .assembly extern mscorlib {}
 .assembly test1 { }
+.class public auto ansi beforefieldinit iftest extends [mscorlib]System.Object{
    .method public static void main()   {
       .entrypoint
       .maxstack 10
@@ -17,23 +18,24 @@
       ldc.i4 10
       clt
       brtrue TRUE_0
-      br END_0
-      TRUE_0:
-      END_0:
       ldloc j
       stloc i
+      br END_0
+      TRUE_0:
+      ldstr "In then part"
+      call void [mscorlib]System.Console::WriteLine(string)
+      END_0:
       ldloc i
       ldc.i4 10
       ceq
       brtrue TRUE_1
+      ldstr "In else part"
+      call void [mscorlib]System.Console::WriteLine(string)
       br END_1
       TRUE_1:
       ldloc i
       stloc j
-      ldstr "This statement is in then part and should not be executed"
-      call void [mscorlib]System.Console::WriteLine(string)
       END_1:
-      ldstr "In else part"
-      call void [mscorlib]System.Console::WriteLine(string)
       ret
    }
+}

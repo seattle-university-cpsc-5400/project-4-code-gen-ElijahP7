@@ -26,7 +26,7 @@ namespace ASTBuilder
             table = symTable;
             uniqueId = 0;
         }
-        
+
         public virtual string ClassName()
         {
             return this.GetType().Name;
@@ -44,10 +44,10 @@ namespace ASTBuilder
             }
         }
         public void GenerateCode(dynamic node, string filename)
-            // node is the root of the AST for the entire TCCL program
+        // node is the root of the AST for the entire TCCL program
         {
             if (node == null) return;  // No code generation for empty AST
-            
+
             file = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), filename + ".il"));
 
             if (TraceFlag)
@@ -87,8 +87,8 @@ namespace ASTBuilder
             }
             // Increase prefix while visiting children
             String oldPrefix = this.prefix;
-            this.prefix += "   "; 
-            
+            this.prefix += "   ";
+
             foreach (dynamic child in node.Children())
             {
                 VisitNode(child);
@@ -104,13 +104,12 @@ namespace ASTBuilder
             file.WriteLine(".assembly extern mscorlib {}");
             file.WriteLine(".assembly test1 { }");
 
-            VisitChildren(node.Child);
+            VisitChildren(node);
 
             // The following lines are present so that an executable .il file is generated even
             // before you have implemented any VisitNode routines.  It generated the body for the
             // hello.txt program regardless of what file is parsed to create the AST.
             // DELETE THESE LINES ONCE YOU HAVE IMPLEMENTED VisitNode FOR MethodDeclaration
-           
             // DELETE TRHOUGH HERE
 
         }
@@ -189,7 +188,7 @@ namespace ASTBuilder
             foreach (dynamic child in node.Children())
             {
                 if (child.whatAmI() == "ASTBuilder.Block")
-                    VisitNode(child);
+                    VisitChildren(child);
             }
             file.WriteLine("      ret");
             file.WriteLine("   }");
@@ -221,6 +220,26 @@ namespace ASTBuilder
                         GenerateValFromVariable(idNode);
                     break;
                 case MethodCall methodCall:
+                    if (methodCall.Child.Sib.whatAmI() == "ASTBuilder.Expression")
+                        GenerateExpressionCode(methodCall.Child.Sib);
+                    else if (methodCall.Child.Sib.whatAmI() == "ASTBuilder.Identifier")
+                    {
+                        dynamic methodId = methodCall.Child.Sib;
+                        if (table.Lookup(methodId.Name).Type.ToString() == "ASTBuilder.StringTypeDescriptor")
+                        {
+                            if (table.Lookup(methodId.Name).ToString() == "ASTBuilder.ParameterAttributes")
+                                file.WriteLine("      ldarg " + methodId.Name);
+                            else
+                                file.WriteLine("      ldloc " + methodId.Name);
+                        }
+                        else if (table.Lookup(methodId.Name).Type.ToString() == "ASTBuilder.IntegerTypeDescriptor")
+                        {
+                            if (table.Lookup(methodId.Name).ToString() == "ASTBuilder.ParameterAttributes")
+                                file.WriteLine("      ldarg " + methodId.Name);
+                            else
+                                file.WriteLine("      ldloc " + methodId.Name);
+                        }
+                    }
                     string method = BuildMethodCall(methodCall.Child);
                     file.WriteLine(method);
                     break;
@@ -495,11 +514,10 @@ namespace ASTBuilder
             {
                 VisitSpecificNode(node.Child);
 
-                //If true
                 file.WriteLine($"      brtrue TRUE_{uniqueId}");
 
-                //If false
-                VisitNode(node.Sib);
+                dynamic elseStatement = node.Child.GetLastSibling();
+                VisitSpecificNode(elseStatement);
                 file.WriteLine($"      br END_{uniqueId}");
 
                 file.WriteLine($"      TRUE_{uniqueId}:");
@@ -523,6 +541,48 @@ namespace ASTBuilder
 
             file.WriteLine($"      LOOP_END_{uniqueId}:");
             uniqueId++;
+        }
+
+        public virtual void VisitNode(ReturnStatement node)
+        {
+            dynamic returnVal = node.Child;
+            if (returnVal.whatAmI() == "ASTBuilder.STR_CONST")
+            {
+                string val = "\"" + returnVal.StrVal + "\"";
+                file.WriteLine("      ldstr " + val);
+                file.WriteLine("      ret");
+            }
+            else if (returnVal.whatAmI() == "ASTBuilder.INT_CONST")
+            {
+                int val = int.Parse(returnVal.IntVal);
+                file.WriteLine("      ldc.i4 " + val);
+                file.WriteLine("      ret");
+            }
+            else if (returnVal.whatAmI() == "ASTBuilder.Expression")
+            {
+                VisitNode(returnVal);
+                file.WriteLine("      ret");
+            }
+            else if (returnVal.whatAmI() == "ASTBuilder.Identifier")
+            {
+                dynamic methodType = table.Lookup(returnVal.Name);
+                if (methodType.Type.ToString() == "ASTBuilder.StringTypeDescriptor")
+                {
+                    if (methodType.ToString() == "ASTBuilder.ParameterAttributes")
+                        file.WriteLine("      ldarg " + returnVal.Name);
+                    else
+                        file.WriteLine("      ldloc " + returnVal.Name);
+                    file.WriteLine("      ret");
+                }
+                else if (methodType.Type.ToString() == "ASTBuilder.IntegerTypeDescriptor")
+                {
+                    if (methodType.ToString() == "ASTBuilder.ParameterAttributes")
+                        file.WriteLine("      ldarg " + returnVal.Name);
+                    else
+                        file.WriteLine("      ldloc " + returnVal.Name);
+                    file.WriteLine("      ret");
+                }
+            }
         }
 
         private void VisitSpecificNode(dynamic node)
@@ -551,6 +611,12 @@ namespace ASTBuilder
             {
                 IterationStatement iterationStatement = (IterationStatement)node;
                 VisitNode(iterationStatement);
+
+            }
+            if (node.whatAmI() == "ASTBuilder.ReturnStatement")
+            {
+                ReturnStatement returnStatement = (ReturnStatement)node;
+                VisitNode(returnStatement);
             }
         }
 

@@ -25,11 +25,11 @@
       ldc.i4 3
       ldc.i4 4
       add
-   stloc y
+      stloc y
       ldc.i4 5
       ldc.i4 7
       mul
-   stloc x
+      stloc x
       ldloc y
       ldloc x
       call void twoparams::outTwoInts(int32, int32)

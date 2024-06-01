@@ -1,5 +1,6 @@
 .assembly extern mscorlib {}
 .assembly test1 { }
+.class public auto ansi beforefieldinit loop extends [mscorlib]System.Object{
    .method public static void main()   {
       .entrypoint
       .maxstack 10
@@ -32,3 +33,4 @@
       LOOP_END_0:
       ret
    }
+}

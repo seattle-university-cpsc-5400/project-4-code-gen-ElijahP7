@@ -218,7 +218,7 @@ namespace ASTBuilder
         {
             adoptChildren(expression);
             adoptChildren(statement);
-            makeSibling(elseBlock);
+            adoptChildren(elseBlock);
             selectionType = type;
         }
 
